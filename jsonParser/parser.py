@@ -21,8 +21,7 @@ def tokenizer(file):
                 current =''
         else:
             current += char
-    print("token_input",tokenized_input)
-    parser(tokenized_input)
+    return tokenized_input 
 
 def parser(tokenized_input) :
     if not tokenized_input:
@@ -39,7 +38,9 @@ if __name__ == "__main__":
         
         with open(file_path,"r") as f:
             file_buffer = f.read()
-        return_flag = tokenizer(file_buffer)
+
+        tokenized_input = tokenizer(file_buffer)
+        return_flag = parser(tokenized_input)
         if return_flag :
             print(f"Invalid parser, return {return_flag}")
         else:

@@ -10,6 +10,7 @@ tokens = {
 }
 
 def tokenizer(file):
+    print("raw_input",file)
     tokenized_input = []
     current = ''
     for char in file_buffer:
@@ -18,7 +19,9 @@ def tokenizer(file):
             if current :
                 tokenized_input.append(current)
                 current =''
-        current += char
+        else:
+            current += char
+    print("token_input",tokenized_input)
     parser(tokenized_input)
 
 def parser(tokenized_input) :

@@ -9,7 +9,9 @@ tokens = {
 'endIdentifier' :'}',
 'quote' : '"',
 'comma': ',',
-'separator':':'
+'separator':':',
+'listStartIdentifier':'[',
+'listEndIdentifier':']'
 }
 
 def tokenizer(file_buffer):
@@ -18,6 +20,8 @@ def tokenizer(file_buffer):
     idx = 0
     concat_flag = 0
     key_flag = 1
+    object_val_flag = 0
+    list_val_flag = 0
     print("file_buffer",file_buffer)
     while idx < len(file_buffer):
         print(file_buffer[idx])
@@ -26,11 +30,14 @@ def tokenizer(file_buffer):
                 tokenized_input.append(file_buffer[idx])
             elif concat_flag and not key_flag :
                 concat_val = file_buffer[idx]
+                object_val_flag = 1
         elif file_buffer[idx] == tokens['endIdentifier'] :
             if idx== len(file_buffer)-1:
                 tokenized_input.append(concat_val)
                 tokenized_input.append(file_buffer[idx])
             elif concat_flag and not key_flag :
+                if object_val_flag:
+                    object_val_flag = 0
                 concat_val += file_buffer[idx]
                 tokenized_input.append(concat_val)
                 concat_val = ''
@@ -38,6 +45,14 @@ def tokenizer(file_buffer):
             tokenized_input.append(file_buffer[idx])
             key_flag = 0
             concat_flag = 1
+            concat_val = ''
+        elif file_buffer[idx] == tokens['listStartIdentifier'] and not key_flag:
+            list_val_flag = 1
+            concat_val = file_buffer[idx]
+        elif file_buffer[idx] == tokens['listEndIdentifier'] and not key_flag:
+            list_val_flag = 0
+            concat_val += file_buffer[idx]
+            tokenized_input.append(concat_val)
             concat_val = ''
         elif file_buffer[idx] == tokens['comma']:
             if not key_flag and concat_val:
@@ -58,10 +73,13 @@ def tokenizer(file_buffer):
                     tokenized_input.append(file_buffer[idx])  
             else:
                 if concat_flag and concat_val:
-                    concat_val += file_buffer[idx]
-                    tokenized_input.append(concat_val)
-                    concat_flag = 0
-                    concat_val = ''
+                    if object_val_flag  or list_val_flag:
+                        concat_val += file_buffer[idx]
+                    else:
+                        concat_val += file_buffer[idx]
+                        tokenized_input.append(concat_val)
+                        concat_flag = 0
+                        concat_val = ''
                 else:
                     concat_flag = 1
                     concat_val = file_buffer[idx]  
@@ -106,7 +124,6 @@ def parser(tokenized_input) :
             num_pattern = r'\d*\.?\d+'
             array_pattern = r'\[.*\]'
             object_pattern = r'\{.*\}'
-            # if isinstance(value,str) or isinstance(value,bool) or isinstance(value,int) :
             if re.match(str_pattern, value) or re.match(num_pattern,value) or value in ['true','false','null'] or re.match(array_pattern,value) or re.match(object_pattern,value) :
                 if idx < len(tokenized_input) - 1 :
                     idx += 1

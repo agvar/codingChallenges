@@ -15,6 +15,19 @@ tokens = {
 }
 
 def tokenizer(file_buffer):
+    """
+    Tokenizes the input file buffer into a list of tokens.
+
+    Args:
+        file_buffer (str): The input file buffer to be tokenized.
+
+    Returns:
+        list: A list of tokens representing the input file buffer.
+
+    Raises:
+        ValueError: If there is an error in tokenizing the input file buffer.
+
+    """
     tokenized_input = []
     concat_val = ''
     idx = 0
@@ -100,7 +113,32 @@ def tokenizer(file_buffer):
     return tokenized_input 
 
 def parser(tokenized_input) :
+    """
+    A recursive descent parser for JSON input.
+    Args:
+        tokenized_input (List[str]): The input JSON string tokenized into a list of strings.
+    Raises:
+        ValueError: If the input is empty, missing opening or closing JSON identifiers, or if there is an unexpected token.
+    Returns:
+        int: Returns 0 if the input is valid JSON, otherwise raises a ValueError.
+    The parser function uses nested helper functions to check the validity of the input JSON string. It recursively checks the validity of the input by matching the tokens with the expected patterns.
+    The check_token function checks if the given value matches the expected token. It raises a ValueError if the value does not match the expected token.
+    The check_string function checks if the given value is a string. It raises a ValueError if the value is not a string or if there is an unexpected end of line.
+    The check_value function checks the validity of the input value based on specified patterns. It raises a ValueError if the value does not match the expected patterns.
+    The main function first checks if the tokenized_input is empty. If it is, it raises a ValueError with the message "No input exception".
+
+    """
     def check_token(value,token):
+        """
+        Check if the given value matches the expected token.
+        Args:
+            value (Any): The value to check.
+            token (Any): The expected token.
+        Raises: 
+            ValueError: If the value does not match the expected token.
+        Returns: None
+
+        """
         nonlocal idx
         print(idx,tokenized_input[idx])
         if value == token :
@@ -112,6 +150,15 @@ def parser(tokenized_input) :
             raise ValueError(f"expected {token} but {value} encountered")
         
     def check_string(value):
+        """
+        Check if the given value is a string.
+        Args:
+            value (Any): The value to check.
+        Raises:
+            ValueError: If the value is not a string or if there is an unexpected end of line.
+        Returns: None
+
+        """
         nonlocal idx
         print(idx,tokenized_input[idx])
         if isinstance(value,str):
@@ -123,6 +170,15 @@ def parser(tokenized_input) :
             raise ValueError(f"string expected, found {tokenized_input[idx]}")
 
     def check_value(value):
+            """
+            A function to check the validity of the input value based on specified patterns.
+            Args:
+                value (Any): The value to be checked.
+            Raises:
+                ValueError: If the value does not match the expected patterns.
+            Returns: None
+
+            """
             nonlocal idx
             print(idx,tokenized_input[idx])
             str_pattern = r'^(").*\1$'

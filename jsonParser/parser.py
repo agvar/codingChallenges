@@ -33,7 +33,8 @@ def tokenizer(file_buffer):
                 object_val_flag = 1
         elif file_buffer[idx] == tokens['endIdentifier'] :
             if idx== len(file_buffer)-1:
-                tokenized_input.append(concat_val)
+                if concat_val :
+                    tokenized_input.append(concat_val)
                 tokenized_input.append(file_buffer[idx])
             elif concat_flag and not key_flag :
                 if object_val_flag:
@@ -42,10 +43,14 @@ def tokenizer(file_buffer):
                 tokenized_input.append(concat_val)
                 concat_val = ''
         elif file_buffer[idx] == tokens['separator']:
-            tokenized_input.append(file_buffer[idx])
-            key_flag = 0
-            concat_flag = 1
-            concat_val = ''
+            if key_flag :
+                tokenized_input.append(file_buffer[idx])
+                key_flag = 0
+                concat_flag = 1
+                concat_val = ''
+            else:
+                concat_val += file_buffer[idx]
+
         elif file_buffer[idx] == tokens['listStartIdentifier'] and not key_flag:
             list_val_flag = 1
             concat_val = file_buffer[idx]
@@ -122,8 +127,8 @@ def parser(tokenized_input) :
             print(idx,tokenized_input[idx])
             str_pattern = r'^(").*\1$'
             num_pattern = r'\d*\.?\d+'
-            array_pattern = r'\[.*\]'
-            object_pattern = r'\{.*\}'
+            array_pattern = r'\[(".*"|\d+|true|false|null)?\]'
+            object_pattern = r'\{(\s*(".*")\s*:\s*(.*)\s*)?\}'
             if re.match(str_pattern, value) or re.match(num_pattern,value) or value in ['true','false','null'] or re.match(array_pattern,value) or re.match(object_pattern,value) :
                 if idx < len(tokenized_input) - 1 :
                     idx += 1
@@ -158,11 +163,11 @@ def parser(tokenized_input) :
 if __name__ == "__main__":
     try:
         file_path = sys.argv[1]
-        #file_path ="./jsonParser/tests/step3/valid.json"
+        #file_path ="./jsonParser/tests/step2/valid.json"
         if not file_path or not os.path.exists(file_path) :
             raise FileNotFoundError
         with open(file_path,"r") as f:
-            file_buffer = f.read()
+            file_buffer = f.read().strip()
         tokenized_input = tokenizer(file_buffer)
         parser(tokenized_input)
         print(f"Valid JSON file")
